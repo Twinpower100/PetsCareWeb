@@ -251,6 +251,56 @@ class AuthAPI {
 
     return response.json();
   }
+
+  /**
+   * Запрос восстановления пароля
+   */
+  async forgotPassword(email: string): Promise<{ message: string; success: boolean }> {
+    console.log('AuthAPI: Sending forgot password request for:', email);
+    const baseUrl = API_BASE_URL.endsWith('/api') ? API_BASE_URL.slice(0, -4) : API_BASE_URL;
+    const response = await fetch(`${baseUrl}/api/forgot-password/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('AuthAPI: Forgot password error:', errorData);
+      throw new Error(errorData.message || 'Failed to send password reset email');
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Сброс пароля по токену
+   */
+  async resetPassword(token: string, newPassword: string, confirmPassword: string): Promise<{ message: string; success: boolean }> {
+    console.log('AuthAPI: Sending reset password request');
+    const baseUrl = API_BASE_URL.endsWith('/api') ? API_BASE_URL.slice(0, -4) : API_BASE_URL;
+    const response = await fetch(`${baseUrl}/api/reset-password/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        token, 
+        new_password: newPassword, 
+        confirm_password: confirmPassword 
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('AuthAPI: Reset password error:', errorData);
+      throw new Error(errorData.message || 'Failed to reset password');
+    }
+
+    return response.json();
+  }
 }
 
 // Экспортируем единственный экземпляр
